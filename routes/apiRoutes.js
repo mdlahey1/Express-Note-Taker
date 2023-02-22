@@ -1,7 +1,7 @@
 const router = require('express').Router();
 let notes = require('../db/db.json');
 const fs = require("fs");
-const generateUniqueId = require('generate-unique-id');
+const {v4 : uuidv4} = require("uuid")
 const { findById } = require('../public/assets/js/noteFinder');
 
 
@@ -22,7 +22,7 @@ router.post('/api/notes', (req, res) => {
         const newNote = {
             title,
             text,
-            id: generateUniqueId()
+            id: uuidv4()
         };
         notes.push(newNote)
         console.log(newNote)
@@ -53,6 +53,7 @@ router.post('/api/notes', (req, res) => {
 
 router.delete('/api/notes/:id', (req, res) => {
     const result = findById(req.params.id, notes);
+    console.log(result)
     if (result) {
         let newArray = notes.filter((note) => note !== result);
         notes = newArray;
@@ -60,7 +61,7 @@ router.delete('/api/notes/:id', (req, res) => {
         fs.writeFile(`./db/db.json`, JSON.stringify(newArray), (err) => 
         err ? console.error(err) : console.log(`The JSON file has been updated.`))
     } else {
-        res.send(404);
+        res.sendStatus(404);
     }
     res.json(notes);
 });
